@@ -10,17 +10,34 @@ app.get('/', (req, res )=>{
     res.send("Hey .. socket")
 })
 
+let playerReg = {}
 let clientNo = 0;
+let roomNo;
 
 io.on('connection', (socket) =>{
-    console.log('a user connected')
+    console.log('a user connected: ' + socket.id)
 
     clientNo++;
     roomNo =  Math.round(clientNo/2);
     // join a room with a unique room num
     socket.join( roomNo );
-    socket.emit( 'serverToClient', roomNo );
-    console.log('user is in room ' + roomNo)
+
+    if (clientNo % 2 === 1){
+        //creating player 1
+        playerReg[socket.id] = {id: socket.id, roomNo: roomNo, no: 1};
+    } else if (clientNo % 2 === 0){
+        //creating player 2
+        playerReg[socket.id] = {id: socket.id, roomNo: roomNo, no: 2};
+    }
+
+    for (let id in playerReg ){
+        io.to(playerReg[id].roomNo).emit('serverToClient', playerReg[id]);
+        
+    }
+
+    //socket.emit( 'serverToClient', data );
+    //console.log('user is in room ' + data.room)
+    console.log( JSON.stringify(playerReg));
 
 
     socket.on('clientToServer', (data) => {
@@ -43,4 +60,11 @@ io.on('connection', (socket) =>{
         console.log("received switchButtonPressed for room "+ roomNo );
         io.to(roomNo).emit('switchFromServer');
     });
+
+    socket.on('disconnect', (reason) => {
+        console.log("disconncted: reason: "+ reason );
+        
+    });
+
 })
+

@@ -26,12 +26,15 @@ btnSwitch.addEventListener('click', () => {
 var clientRoom;
 
 socket.on('connect', () => {
-    console.log("connected with socketid: " + socket.id);
+    // we are connected
+    console.log("connected using socketid: " + socket.id);
 });
 socket.on('serverToClient', (data) => {
-    logger.innerHTML += 'we are in room ' + JSON.stringify(data)
+    let li = document.createElement('li');
+    li.textContent = 'serverToClient:<br/> ' + JSON.stringify(data);
+    logger.append(li); 
 
-    clientRoom = data;
+    clientRoom = data.roomNo;
 })
 
 socket.on('switchFromServer', ()=>{
