@@ -2,17 +2,34 @@ const socket = io('http://localhost:3000')
 
 var logger = document.getElementById('logger');
 var btnRoom = document.getElementById('Room');
-var btnHello = document.getElementById('Hello');
+var btnChat = document.getElementById('Chat');
 var btnSwitch = document.getElementById('Switch');
 
 btnRoom.addEventListener('click', () => {
     // create an html table
     console.log("Room request");
+    
+    socket.emit('clientToServer', "new room")
+})
+
+btnChat.addEventListener('click', () => {
+    console.log("Chat request");
+    socket.emit('clientToClients', "hello to the fellow clients!")
+})
+
+btnSwitch.addEventListener('click', () => {
+    console.log('request server to switch the roomlight')
+    socket.emit('switchButtonPressed', clientRoom);
+    // already switch it
 })
 
 var clientRoom;
+
+socket.on('connect', () => {
+    console.log("connected with socketid: " + socket.id);
+});
 socket.on('serverToClient', (data) => {
-    logger.innerHTML += 'we are in room' + JSON.stringify(data)
+    logger.innerHTML += 'we are in room ' + JSON.stringify(data)
 
     clientRoom = data;
 })
@@ -28,16 +45,6 @@ socket.on('switchFromServer', ()=>{
     }
 });
 
-socket.emit('clientToServer', "Hello Server! ")
+socket.emit('clientToServer', "(client) Hello Server! ")
 
-btnHello.addEventListener('click', () => {
-    socket.emit('clientToClients', "hello to the fellow clients!")
 
-})
-
-btnSwitch.addEventListener('click', () => {
-    console.log('request server to swith the room')
-    socket.emit('switchButtonPressed', clientRoom);
-    // already switch it
-
-})
